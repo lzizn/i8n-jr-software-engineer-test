@@ -1,0 +1,34 @@
+'use strict'
+
+exports.up = function(knex) {
+	<% if (d.tableName) { %>
+	return knex.schema.createTable("<%= d.tableName %>", function(t) {
+		t.increments()
+		t.timestamp()
+	})
+	<% } %>
+
+  return knex.schema
+    .withSchema( <SCHEMA_NAME> )
+    .createTable( <TABLE_NAME> , table => {
+      table.uuid          ('id').notNullable().primary()
+      table.string        ('name').notNull().unique('UQ_TABLE__FIELD')
+    })
+    .then(() => {
+
+    })
+}
+
+
+exports.down = function(knex) {
+	<% if (d.tableName) { %>
+	return knex.schema.dropTable("<%= d.tableName %>")
+	<% } %>
+
+  return knex.schema
+    .withSchema( <SCHEMA_NAME> )
+    .dropTable( <TABLE_NAME> )
+    .then(() => {
+      
+    })
+}
