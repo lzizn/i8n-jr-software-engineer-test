@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+serviceName=${COMPOSE_SERVICE_NAME:-'dev.app.laian'}
+
+SECONDS=0
+
+echo "Running a command in a docker-service"
+echo "       service: $serviceName"
+
+./docker/cli run --rm --service-ports $serviceName $@
+
+echo "Finished after: $SECONDS sec"
+echo "            at: $(date +%Y-%m-%dT%H:%M:%S%z)"

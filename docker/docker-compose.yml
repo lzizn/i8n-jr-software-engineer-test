@@ -1,0 +1,102 @@
+version: '3.7'
+
+services:
+  dev.app.laian:
+    build:
+      context: .
+      # update this version with GitLab CI / Serverless config / DockerCompose
+      dockerfile: ./docker/dev-app.Dockerfile
+      target: app
+
+    environment:
+      NODE_ENV: 'dev'
+
+      DB_CONNECTION_HOST:      'local.db.laian'
+      DB_CONNECTION_PORT:      5432
+      DB_CONNECTION_DATABASE:  'laianDevDB'
+      DB_CONNECTION_USERNAME:  'user'
+      DB_CONNECTION_PASSWORD:  'pwd123'
+
+      # boolean, for printing KNEX SQL-requests
+      KNEX_DEBUG:
+
+    expose:
+      - '4000'
+
+    ports:
+      - '4000:4000'
+
+    volumes:
+      - type: bind
+        source: './'
+        target: '/laian/'
+
+    working_dir: /laian/
+
+    depends_on:
+      - local.db.laian
+
+  local.db.laian:
+    image: 'postgres:11-alpine'
+    environment:
+      POSTGRES_DB:       'laianDevDB'
+      POSTGRES_USER:     'user'
+      POSTGRES_PASSWORD: 'pwd123'
+      POSTGRES_INITDB_ARGS: '--locale=en_US.UTF-8'
+    ports:
+      - 5432:5432
+
+  dumper.local.db.laian:
+      image: 'postgres:11'
+      environment:
+        POSTGRES_HOST:     'local.db.laian'
+        POSTGRES_DB:       'laianDevDB'
+        POSTGRES_USER:     'user'
+        POSTGRES_PASSWORD: 'pwd123'
+
+      working_dir: /laian/
+
+      volumes:
+        - type: bind
+          source: './db-backups/'
+          target: '/laian/db-backups/'
+        - type: bind
+          source: './docker/assets/dumper.local.db.laian/custom-scripts/'
+          target: '/laian/custom-scripts/'
+
+      entrypoint: /laian/custom-scripts/psql-wrapper.sh
+
+      depends_on:
+        - local.db.laian
+
+  ui.local.db.laian:
+    # https://www.pgadmin.org/docs/pgadmin4/development/container_deployment.html
+    image: dpage/pgadmin4
+
+    volumes:
+      # predefined DB-servers/databases:
+      # https://www.pgadmin.org/docs/pgadmin4/development/import_export_servers.html
+      - type: 'bind'
+        source: './docker/assets/ui.local.db.laian/servers.json'
+        target: '/pgadmin4/servers.json'
+
+      # - type: 'bind'
+      #   source: './docker/var/ui.local.db.laian/pgadmin4/'
+      #   target: '/pgadmin4/'
+
+      - type: 'bind'
+        source: './db-backups/'
+        target: '/var/lib/pgadmin/storage/'
+
+
+    ports:
+      - '13000:80'
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL:    'root@laian.com'
+      PGADMIN_DEFAULT_PASSWORD: '1234'
+
+      PGADMIN_CONFIG_THEME: "'Dark'"
+
+    depends_on:
+      - local.db.laian

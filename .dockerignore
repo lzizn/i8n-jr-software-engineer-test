@@ -1,0 +1,25 @@
+# important:
+.env
+
+# temporary
+./.build
+./.cache
+./.git
+
+# all other
+./db-backups
+./docker/var/
+./node_modules
+./tmp
+
+# files:
+
+.browserslistrc
+.dockerignore
+.editorconfig
+.env
+.eslintignore
+.eslintrc.js
+.git
+.gitignore
+.prettierrc

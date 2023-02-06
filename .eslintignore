@@ -3,5 +3,14 @@ node_modules
 
 build
 
+*.d.ts
+
 
 coverage
+
+
+/dev/
+/tmp/
+/build/
+/db-backups/
+/docker/var/

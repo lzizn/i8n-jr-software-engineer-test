@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# $(date -Iseconds) doesn't work in MAC environment, but we need a date
+# in ISO-8601 format (for future automation purposes)
+#
+# https://stackoverflow.com/q/7216358/1115187
+export BUILD_DATE_ISO=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+export GIT_COMMIT=$(git rev-parse HEAD)
+
+# mountable dirs for docker images
+mkdir -p db-backups
+
+docker-compose \
+	--file docker/docker-compose.yml \
+	--project-name laian \
+	--project-directory ./ \
+	$@
+

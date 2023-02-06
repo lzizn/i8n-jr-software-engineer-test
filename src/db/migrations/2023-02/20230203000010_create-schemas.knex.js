@@ -4,9 +4,11 @@ exports.up = function (knex) {
   function addCommonFields(table) {
     const tableName = table._tableName;
 
-    // TODO: change to PGSQL and use uuid here
-    table.integer('id').notNullable().primary(`PK_${tableName}`);
-    table.timestamp('createdAt', { useTz: true, precision: 3 }).notNullable();
+    table.uuid('id').notNullable().primary(`PK_${tableName}`);
+    table
+      .timestamp('createdAt', { useTz: true, precision: 3 })
+      .defaultTo(knex.fn.now(3))
+      .notNullable();
     table.timestamp('updatedAt', { useTz: true, precision: 3 });
   }
 
@@ -14,7 +16,7 @@ exports.up = function (knex) {
     .createTable('material', (table) => {
       addCommonFields(table);
 
-      table.string('name').notNullable();
+      table.text('name').notNullable();
 
       table.unique(['name'], 'UQ_material__name');
     })
@@ -22,7 +24,7 @@ exports.up = function (knex) {
       return knex.schema.createTable('department', (table) => {
         addCommonFields(table);
 
-        table.string('name').notNullable();
+        table.text('name').notNullable();
 
         table.unique(['name'], 'UQ_department__name');
       });
@@ -31,13 +33,13 @@ exports.up = function (knex) {
       return knex.schema.createTable('product', (table) => {
         addCommonFields(table);
 
-        table.string('name').notNullable();
-        table.string('description').notNullable();
+        table.text('name').notNullable();
+        table.text('description').notNullable();
 
         table.float('price').notNullable();
 
-        table.string('materialId').notNullable();
-        table.string('departmentId').notNullable();
+        table.uuid('materialId').notNullable();
+        table.uuid('departmentId').nullable();
 
         table
           .foreign(['materialId'], 'FK_product__materialId')

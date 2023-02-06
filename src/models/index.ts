@@ -4,7 +4,6 @@ import {
   fn,
   raw,
   ref,
-  Model,
   UniqueViolationError,
   NotNullViolationError,
 } from 'objection';
@@ -13,17 +12,19 @@ import path from 'path';
 
 import * as db from '../db';
 
+import BaseModel from './base-model';
+
 import * as userSchema from './user';
 import * as orderSchema from './order';
 import * as productSchema from './product';
 
-const _knownSchemas = {
+import type { ModelPath, Models } from './types';
+
+export const _knownSchemas = {
   user: userSchema,
   order: orderSchema,
   product: productSchema,
 };
-
-type ModelPath = 'user' | 'order' | 'product' | 'department' | 'material';
 
 function getModelLazily(schemaAndModelName: ModelPath) {
   const [schemaName, modelName] = schemaAndModelName.split('.');
@@ -35,16 +36,16 @@ function getModelLazily(schemaAndModelName: ModelPath) {
   // this function works and it is an old-known objection.js trick, but typescript is crying
 }
 
-function initializeModels() {
+function initializeModels(): Models {
   const knex = db.getClient();
 
-  Model.knex(knex);
+  BaseModel.knex(knex);
 
   return {
     ..._knownSchemas,
     schemas: _knownSchemas,
 
-    Model: Model,
+    Model: BaseModel,
 
     fn: fn,
     raw: raw,

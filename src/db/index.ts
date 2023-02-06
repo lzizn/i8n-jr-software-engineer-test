@@ -4,15 +4,23 @@ import path from 'path';
 
 let _knex: Knex | null = null;
 
+const dbConnectionSettings = {
+  host: process.env.DB_CONNECTION_HOST,
+  port: Number(process.env.DB_CONNECTION_PORT),
+  user: process.env.DB_CONNECTION_USERNAME,
+  database: process.env.DB_CONNECTION_DATABASE,
+  password: process.env.DB_CONNECTION_PASSWORD,
+
+  debug: Boolean(process.env.KNEX_DEBUG),
+};
+
 const getClient = () => {
   const acquireTimeoutMs = 1 * 25 * 1000;
 
   if (!_knex) {
     _knex = knex({
-      client: 'sqlite3',
-      connection: {
-        filename: path.join('src', 'db', 'db.sqlite'),
-      },
+      client: 'pg',
+      connection: dbConnectionSettings,
       searchPath: ['knex', 'public'],
       migrations: {
         // schemaName: 'sys',
@@ -28,7 +36,7 @@ const getClient = () => {
 
       acquireConnectionTimeout: acquireTimeoutMs,
 
-      debug: false,
+      debug: Boolean(process.env.KNEX_DEBUG),
     });
   }
 

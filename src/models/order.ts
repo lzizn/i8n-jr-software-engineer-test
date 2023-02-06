@@ -1,7 +1,8 @@
-import { Model } from 'objection';
+import BaseModel from './base-model';
+
 import { getModelLazily } from '.';
 
-class Order extends Model {
+class Order extends BaseModel {
   static get tableName() {
     return 'order';
   }
@@ -9,7 +10,7 @@ class Order extends Model {
   static get relationMappings() {
     return {
       product: {
-        relation: Model.HasOneRelation,
+        relation: BaseModel.HasOneRelation,
         modelClass: getModelLazily('product'),
         join: {
           from: 'order.productId',
@@ -18,7 +19,7 @@ class Order extends Model {
       },
 
       user: {
-        relation: Model.HasOneRelation,
+        relation: BaseModel.HasOneRelation,
         modelClass: getModelLazily('user'),
         join: {
           from: 'order.userId',
